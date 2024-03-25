@@ -1,4 +1,4 @@
-import { Express } from "express";
+import { NextFunction, Request, Response } from "express";
 import passport from "passport";
 import {
   Strategy,
@@ -43,9 +43,10 @@ passport.deserializeUser((id, done) => {
   done(null, id);
 });
 
-// todo - to fix
-export function passportMidleware(app: Express) {
-  app.use(passport.initialize());
-  app.use(passport.session());
-  return () => {};
+export function passportMidleware() {
+  return function (req: Request, res: Response, next: NextFunction) {
+    passport.initialize()(req, res, () => {
+      passport.session()(req, res, next);
+    });
+  };
 }
